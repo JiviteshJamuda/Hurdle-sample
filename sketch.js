@@ -15,8 +15,8 @@ var track, runner1_img, runner2_img, runner3_img, runner4_img, hurdle, invisible
 function preload() {
     hurdle = loadImage("../images/hurdle.png");
     track = loadImage("../images/pla.jpg");
-    runner1_img = loadImage("b.png", "p.png", "y.png");
-    runner2_img = loadImage("b.png", "p.png", "y.png");
+    runner1_img = loadAnimation("b.png", "p.png", "y.png");
+    runner2_img = loadAnimation("b.png", "p.png", "y.png");
 }
 
 function setup() {
