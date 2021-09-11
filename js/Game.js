@@ -12,10 +12,15 @@ class Game {
 
     update(state) {
         database.ref('/').update({
-            gameState: state
+            gameState: state,
         });
     }
 
+    updateRank(state) {
+        database.ref('/').update({
+            playersAtEnd: state,
+        });
+    }
 
     async start() {
         if (gameState === 0) {
@@ -58,90 +63,93 @@ class Game {
 
     }
     play() {
-        form.hide();
-        Player.getPlayerInfo();
-        spawnObstacles();
-        spawnObstacles1();
+        if (gameState === 1){
+            form.hide();
+            Player.getPlayerInfo();
+            spawnObstacles();
+            spawnObstacles1();
 
 
 
-        // Player.getPlayersAtEnd();
+            // Player.getPlayersAtEnd();
 
-        if (allPlayers !== undefined) {
-            image(track, 0, -20, displayWidth * 5, displayHeight);
+            if (allPlayers !== undefined) {
+                image(track, 0, -20, displayWidth * 5, displayHeight);
 
-            //index of the array
-            var index = 0;
-            //x and y position of the cars
-            var y = 140;
-            var x = 50;
-
-
-            runner1.collide(invisibleGround1);
-            runner2.collide(invisibleGround2);
+                //index of the array
+                var index = 0;
+                //x and y position of the cars
+                var y = 140;
+                var x = 50;
 
 
-            for (var plr in allPlayers) {
-                index = index + 1;
-                this.index = this.index + 1;
+                runner1.collide(invisibleGround1);
+                runner2.collide(invisibleGround2);
 
-                y = y + 260;
-                //use data form the database to display the cars in x direction
-                x = displayWidth - allPlayers[plr].distance;
 
-                runners[index - 1].x = x;
-                runners[index - 1].y = y;
-                runners[index - 1].velocityY = 2;
-                runners[index - 1].velocityY = 2;
+                for (var plr in allPlayers) {
+                    index = index + 1;
+                    this.index = this.index + 1;
 
-                if (index === player.index) {
-                    // console.log("yes")
-                    stroke(10);
-                    fill("red");
-                    ellipse(x, y, 60, 60);
-                    runners[index - 1].shapeColor = "red";
-                    camera.position.x = runners[index - 1].x;
-                    camera.position.y = runners[index - 1].y;
-                    player.x = x;
-                    player.y = y;
-                    player.update()
+                    y = y + 260;
+                    //use data form the database to display the cars in x direction
+                    x = displayWidth - allPlayers[plr].distance;
 
-                    if (keyDown("space")) {
-                        // console.log(player.x)
-                        runners[index - 1].velocityY = -4;
+                    runners[index - 1].x = x;
+                    runners[index - 1].y = y;
+                    runners[index - 1].velocityY = 2;
+                    runners[index - 1].velocityY = 2;
+
+                    if (index === player.index) {
+                        // console.log("yes")
+                        stroke(10);
+                        fill("red");
+                        ellipse(x, y, 60, 60);
+                        runners[index - 1].shapeColor = "red";
+                        camera.position.x = runners[index - 1].x;
+                        camera.position.y = runners[index - 1].y;
+                        player.x = x;
+                        player.y = y;
+                        player.update()
+
+                        if (keyIsDown(UP_ARROW)) {
+                            // console.log(player.x)
+                            runners[index - 1].velocityY = -4;
+
+                        }
+                        runners[index - 1].velocityY = runners[index - 1].velocityY + 0.8
+
+
 
                     }
-                    runners[index - 1].velocityY = runners[index - 1].velocityY + 0.8
 
 
 
+
+
+                    if (keyIsDown(RIGHT_ARROW) && player.index !== null) {
+                        player.distance -= 10
+                        player.update();
+                    }
                 }
 
-
-
-
-
-                if (keyIsDown(RIGHT_ARROW) && player.index !== null) {
-                    player.distance -= 10
-                    player.update();
-                }
             }
 
+
+
+
+
+
+
+            if (player.distance <= -9230) {
+                gameState = 2;
+                player.rank += 1
+                Player.updatePlayersAtEnd(player.rank)
+            }
+
+            drawSprites();
         }
-
-
-
-
-
-
-
-        if (player.distance == -9230) {
-            gameState = 2;
-            player.rank += 1
-            Player.updateCarsAtEnd(player.rank)
-        }
-
-        drawSprites();
+        
     }
 
     end() {
@@ -154,13 +162,13 @@ function spawnObstacles() {
     var i = 0;
     if (frameCount % 360 === 0) {
         i = i + 1000
-        var obstacle = createSprite(800, 325);
+        var obstacle = createSprite(runner1.x + 700, 325, 10, 10);
 
         obstacle.velocityX = -2;
         obstacle.addImage(hurdle);
 
         obstacle.scale = 0.80;
-        obstacle.lifetime = 800;
+        obstacle.lifetime = 700;
         obstacle.setCollider("rectangle", -10, 0, 90, 150);
         obstacle.debug = true;
     }
@@ -172,12 +180,12 @@ function spawnObstacles() {
 function spawnObstacles1() {
     if (frameCount % 360 === 0) {
 
-        var obstacle = createSprite(800, 585);
+        var obstacle = createSprite(runner2.x + 700, 585, 10, 10);
 
         obstacle.velocityX = -2;
         obstacle.addImage(hurdle);
         obstacle.scale = 0.80;
-        obstacle.lifetime = 800;
+        obstacle.lifetime = 700;
         obstacle.setCollider("rectangle", -10, 0, 90, 150);
         obstacle.debug = true;
 
